@@ -1,0 +1,371 @@
+<html>
+    <head>
+        <title>quality-of-soil</title>
+        <title>MeterPage</title>
+        <meta name="viewport" content="width=device-width">
+        <meta charset="utf-8" />
+            <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.js"></script>
+            <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase.js"></script>
+        
+        <script>
+
+
+        // Initialize Firebase
+        var firebaseRef = {};
+        var temperature_curf=0;
+        var Moisture_curf=0;
+        var Ph_curf=0;
+
+        angular.module('firebaseApp', []).service('firebaseService', function () {
+            // ���ҧ Function ���� init Firebase ��ҡѺ app ���
+            this.initFirebase = function () {
+                var config = {
+
+                    apiKey: "AIzaSyCEl1EbuQoNr5Xtkh5tnZ6Jnbc-SLiMkrM",
+                    authDomain: "quality-of-soil.firebaseapp.com",
+                    databaseURL: "https://quality-of-soil-default-rtdb.firebaseio.com",
+                    storageBucket: "quality-of-soil.appspot.com",
+                    messagingSenderId: "1098822800204",
+
+                };
+                firebase.initializeApp(config);
+                firebaseRef = firebase.database().ref("Set");
+
+                // สำหรับค่าเฉลี่ย ค่าสูงสุด และต่ำสุด
+                firebaseRef_temperature = firebase.database().ref("Push/temperature").limitToLast(1440);
+                firebaseRef_Moisture = firebase.database().ref("Push/Moisture").limitToLast(1440);
+                firebaseRef_Ph = firebase.database().ref("Push/Ph").limitToLast(1440);
+
+            }
+            //eTest.append('<li>'+'hello'+'</li>)
+            //eTest.append('<li>'+'hello'+'</li>)
+
+            // ���ҧ Function ������ event �ͧ Firebase
+            this.eventFirebase = function () {
+                firebaseRef.on('value', function (data) {
+                	const datas = Object.values(data.val());
+                	console.log(datas);
+
+                    var elementOL = angular.element(document.getElementById('Set'));
+                    const lastIndex = datas.length-1;
+
+					// สำหรับโชว์ค่าปัจจุบัน
+                    document.getElementById('temperature_cur').innerHTML = 'ปัจจุบัน : '+ datas[3];
+					temperature_curf = datas[3];
+					document.getElementById('Moisture_cur').innerHTML = 'ปัจจุบัน : '+ datas[1];
+					Moisture_curf = datas[1];
+					document.getElementById('Ph_cur').innerHTML = 'ปัจจุบัน : '+ datas[2];
+					Ph_curf = datas[2];
+                    g1.refresh(temperature_curf);
+                    g2.refresh(Moisture_curf);
+                    g3.refresh(Ph_curf);
+                    //year_bhudda = datas[3]['year'] + 543;
+
+					// if (datas[3]['min'] == 1) { temp_min = '01';}
+					// else if (datas[3]['min'] == 2) { temp_min = '02';}
+					// else if (datas[3]['min'] == 3) { temp_min = '03';}
+					// else if (datas[3]['min'] == 4) { temp_min = '04';}
+					// else if (datas[3]['min'] == 5) { temp_min = '05';}
+					// else if (datas[3]['min'] == 6) { temp_min = '06';}
+					// else if (datas[3]['min'] == 7) { temp_min = '07';}
+					// else if (datas[3]['min'] == 😎 { temp_min = '08';}
+					// else if (datas[3]['min'] == 9) { temp_min = '09';}
+					// else { temp_min = datas[3]['min'];}
+
+                    // document.getElementById('date_cur').innerHTML = 'ข้อมูลล่าสุด : '+ datas[3]['day'] + '/' + datas[3]['mon'] + '/' + year_bhudda + ' ' + datas[3]['hour'] + ':' + temp_min + ' น.';
+					// elementOL.empty();
+                })
+
+                 // สำหรับค่าอุณหภูมิ เฉลี่ย สูงสุด ต่ำสุด
+                 firebaseRef_temperature.on('value', function (data) {
+                	const datas_temperature = Object.values(data.val());
+                	console.log(datas_temperature);
+					// สำหรับโชว์ค่าอุณหภูมิ
+					var sum = 0;
+					var mean_temperature = 0;
+					var max_temperature = 0;
+					var min_temperature = 100;
+					for (i = 0 ; i < datas_temperature.length ; i++){
+						sum += datas_temperature[i];
+						if(max_temperature < datas_temperature[i]){ max_temperature = datas_temperature[i];}
+						if(min_temperature > datas_temperature[i]){ min_temperature = datas_temperature[i];}					
+					}
+					mean_temperature = sum / datas_temperature.length;
+                    document.getElementById('temperature_mean').innerHTML = 'ค่าเฉลี่ย : '+ mean_temperature.toFixed(2);
+                    document.getElementById('temperature_min').innerHTML = 'ค่าน้อยสุด : '+ min_temperature.toFixed(2);
+                    document.getElementById('temperature_max').innerHTML = 'ค่ามากสุด : '+ max_temperature.toFixed(2);
+					})
+                // สำหรับค่าความชื้น
+                firebaseRef_Moisture.on('value', function (data) {
+                	const datas_Moisture = Object.values(data.val());
+                	console.log(datas_Moisture);
+					// สำหรับโชว์ค่าความชื้น
+					var sum_Moisture = 0;
+					var mean_Moisture = 0;
+					var max_Moisture = 0;
+					var min_Moisture = 100;
+					for (i = 0 ; i < datas_Moisture.length ; i++){
+						sum_Moisture += datas_Moisture[i];
+						if(max_Moisture < datas_Moisture[i]){ max_Moisture = datas_Moisture[i];}
+						if(min_Moisture > datas_Moisture[i]){ min_Moisture = datas_Moisture[i];}					
+					}
+					mean_Moisture = sum_Moisture / datas_Moisture.length;
+                    document.getElementById('Moisture_mean').innerHTML = 'ค่าเฉลี่ย : '+ mean_Moisture.toFixed(2);
+                    document.getElementById('Moisture_min').innerHTML = 'ค่าน้อยสุด : '+ min_Moisture.toFixed(2);
+                    document.getElementById('Moisture_max').innerHTML = 'ค่ามากสุด : '+ max_Moisture.toFixed(2);
+					})
+                // สำหรับค่าแสง
+                firebaseRef_Ph.on('value', function (data) {
+                	const datas_Ph = Object.values(data.val());
+                	console.log(datas_Ph);
+					// สำหรับโชว์ค่าแสง
+					var sum_Ph = 0;
+					var mean_Ph = 0;
+					var max_Ph = 0;
+					var min_Ph = 100;
+					for (i = 0 ; i < datas_Ph.length ; i++){
+						sum_Ph += datas_Ph[i];
+						if(max_Ph < datas_Ph[i]){ max_Ph = datas_Ph[i];}
+						if(min_Ph > datas_Ph[i]){ min_Ph = datas_Ph[i];}					
+					}
+					mean_Ph = sum_Ph / datas_Ph.length;
+                    document.getElementById('Ph_mean').innerHTML = 'ค่าเฉลี่ย : '+ mean_Ph.toFixed(2);
+                    document.getElementById('Ph_min').innerHTML = 'ค่าน้อยสุด : '+ min_Ph.toFixed(2);
+                    document.getElementById('Ph_max').innerHTML = 'ค่ามากสุด : '+ max_Ph.toFixed(2);
+					})
+            }
+            this.push = function (title, content) { }
+        }).controller('firebaseCtrl', function (firebaseService) {
+            // ���¡��ҹ firebaseService ���������ҧ���
+            firebaseService.initFirebase();
+            firebaseService.eventFirebase();
+        })
+        </script>
+        <link rel="stylesheet" href="styles.css">
+        <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='styles.css' type='text/css'>
+    </head>
+
+    <style>
+        html {
+		    scroll-behavior: smooth;
+		}
+		#section1 {
+  			height: 720px;
+		}
+        .jumbotron {
+            font-family: 'Montserrat', sans-serif;
+            padding: 150px 0;
+            background: url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwoHBgYGBggRBgYHBxYHBgYGCA8ICRAWFREYFiARExMYHCggGBolGxMTITEhJSkrLi4uFx8zODMsNygtLisBCgoKDQ0NFQ0PGisZFRkrKysrKysrLSsrKysrLSsrKysrKystKysrKysrKysrKysrKysrKysrKysrKysrKysrK//AABEIANQA7gMBIgACEQEDEQH/xAAYAAEBAQEBAAAAAAAAAAAAAAAAAwIHAf/EABcQAQEBAQAAAAAAAAAAAAAAAAASEWH/xAAXAQEBAQEAAAAAAAAAAAAAAAAAAwIB/8QAFhEBAQEAAAAAAAAAAAAAAAAAABES/9oADAMBAAIRAxEAPwDkIDTgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2SVMMcrNTklTDClTklTDClTklTDClTklTDClTklTDClTklTDClTklTDClTklTDClTklTDClTklTDClTklTDClTklTDClTklTDClTklTDClbklWSWKnUpJVkkpUpJVkkpUpJVkkpUpJVkkpUpJVkkpUpJVkkpUpJVkkpUpJVkkpUpJVkkpUpJVkkpUpJVkkpUpJVkkpUpJVkkpUpJVkkpVJJVklOpaSklWSSmkpJVkkppKSVZJKaSklWSSmkpJVkkppKSVZJKaSklWSSmkpJVkkppKSVZJKaSklWSSmkpJVkkppKSVZJKaSklWSSmkpJVkkppWSVpJT0jpGSVpJNGkZJWkk0aRklaSSmkZJWkk0aRklaSTRpGSVpJNGkZJWkk0aRklaSTRpGSVpJNGkZJWkk0aRklaSTRpGSVpJNGkZJWkk0aRklaSTRpaSVZ4TxOo6SklWeE8KaSklWeE8KaSklWeE8KaSklWeE8KaSklWeE8KaSklWeE8KaSklWeE8KaSklWeE8KaSklWeE8KaSklWeE8KaSklWeE8KaSklWeE8KaSklWeE8KaSklWeE8KaXghWSU6jpKCFZJKaSghWSSmkoIVkkppKCFZJKaSghWSSmkoIVkkppKCFZJKaSghWSSmkoIVkkppKCFZJKaSghWSSmkoIVkkppKCFZJKaSghWSSmlpJWklLSFRklaSTRUZJWkk0VGSVpJNFRklaSTRUZJWkk0VGSVpJNFRklaSTRUZJWkk0VGSVpJNFRklaSTRUZJWkk0VGSVpJNFRklaSTRUZJWkk0VWSVpJT0jpGSVpJNGkZJWkk0aRklaSTRpGSVpJNGkZJWkk0aRklaSTRpGSVpJNGkZJWkk0aRklaSTRpGSVpJNGkZJWkk0aRklaSTRpGSVpJNGkZJWkk0aWklWSU6jpKSVZJKaSklWSSmkpJVkkppKSVZJKaSklWSSmkpJVkkppKSVZJKaSklWSSmkpJVkkppKSVZJKaSklWSSmkpJVkkppKSVZJKaSklWSSmlZJUklOpaTklSSSmk5JUkkppOSVJJKaTklSSSmk5JUkkppOSVJJKaTklSSSmk5JUkkppOSVJJKaTklSSSmk5JUkkppOSVJJKaTklSSSmk5JUkkppTDFMMYqVTwxTDClTwxTDClTwxTDClTwxTDClTwxTDClTwxTDClTwxTDClTwxTDClTwxTDClTwxTDClTwxTDClTwxTDClTwxTDClTwxTDClaAcZAAAAAAAAAAAAAAAAAAAAAAAAAAAAf/2Q==) center center;
+            background-size: cover;
+            text-align: center;
+            color: rgb(255, 255, 255);
+            position: relative;
+        }
+        .jumbotron h1 {
+            font-size: 70px;
+            margin-bottom: 0;
+        }
+        .jumbotron p {
+            font-family: serif;
+            font-size: 30px;
+            font-style: italic;
+            margin: 0 0 30px;
+        }
+        .button {
+            display: inline-block;
+            border: 3px solid #fff;
+            padding: 10px 20px;
+            padding-left: 25%;
+            padding-right: 30px;
+            color: #fff;
+            text-decoration: none;
+            transition: 0.3s;
+            width: 160px;
+        }
+        .button:hover {
+            background: rgb(0, 255, 21);
+            color: #000;
+        }
+        .gauge {
+            width: 320px;
+            height: 240px;
+        }
+        .box4x1 {
+            float: left;
+            width: 300px;
+            height: 200px;
+            box-sizing: border-box;
+            background-color: white;
+            }
+        .box4x2 {
+            float: left;
+            width: 300px;
+            height: 280px;
+            box-sizing: border-box;
+            background-color: white;
+        }
+        .boxspace {
+            float: left;
+            width: 1200px;
+            height: 20px;
+            box-sizing: border-box;
+            background-color:#F8F8F8;;
+        }
+        </style>
+        <body ng-app="firebaseApp">
+            <div class = "grid">
+                <header class = "page-header content">
+                    <h1>เเสดงผลการวัดค่าจากดิน</h1>
+                </header>
+                <div class = "page-leftbar content">
+                    <img width="250"  border='5px solid #000000' src="https://www.kellogggarden.com/wp-content/uploads/2020/03/testing-soil-.jpg" alt="Avatar"  class="avatar">
+                        <section class="jumbotron">
+                            <h4 align="left"><a href="https://quality-of-soil.web.app/" class="button">พืชที่เหมาะสมกับดิน</a></h4>
+                            <h4 align="left"><a href="https://soil-web-3b9a1.web.app/" class="button">ที่มาเเละความสำคัญ</a></h4>
+                            <h4 align="left"><a href="https://coverpage-51109.web.app/#" class="button">Lockout</a></h4>
+                        </section>  
+                        
+                </div> 
+                <div ng-controller="firebaseCtrl" class = "page-main content">
+                    <h1>ค่าที่วัดได้จากดิน</h1>
+                    <div style="background-color: white;">
+                        <div style="background-color: white;">
+                            <div class="box4x1">
+                                <div id="g1" class="gauge"></div>
+                            </div>
+
+                            <div class="box4x1">
+                                <div id="g2" class="gauge"></div>
+                            </div>
+
+                            <div class="box4x1">
+                                <div id="g3" class="gauge"></div>
+                            </div>
+                    </div>
+                    
+                    <div>
+                        <div class="box4x2" >
+                            <!-- <h1 id=""></h1> -->
+                            <h4 style="text-align:center;font-family: 'Sarabun', sans-serif;font-size: 1.5em;color:#505050">อุณหภูมิ</h4>
+                            <h5 style="text-align:center;font-family: 'Sarabun', sans-serif;color:#505050">(องศาเซลเซียส)</h5>
+                            <h5 style="text-align:center;font-family: 'Sarabun', sans-serif;color:#505050" id="temperature_cur">ปัจจุบัน : </h5>
+                            <h5 style="text-align:center;font-family: 'Sarabun', sans-serif;color:#505050" id="temperature_mean">ค่าเฉลี่ย : </h5>
+                            <h5 style="text-align:center;font-family: 'Sarabun', sans-serif;color:#505050" id="temperature_min">ค่าน้อยสุด : </h5>
+                            <h5 style="text-align:center;font-family: 'Sarabun', sans-serif;color:#505050" id="temperature_max">ค่ามากสุด : </h5>
+                        </div>
+
+                        <div class="box4x2" >
+                            <h4 style="text-align:center;font-family: 'Sarabun', sans-serif;font-size: 1.5em;color:#505050">ความชื้น</h4>
+                            <h5 style="text-align:center;font-family: 'Sarabun', sans-serif;color:#505050">(เปอร์เซ็นต์)</h5>
+                            <h5 style="text-align:center;font-family: 'Sarabun', sans-serif;color:#505050" id="Moisture_cur">ปัจจุบัน : </h5>
+                            <h5 style="text-align:center;font-family: 'Sarabun', sans-serif;color:#505050" id="Moisture_mean">ค่าเฉลี่ย : </h5>
+                            <h5 style="text-align:center;font-family: 'Sarabun', sans-serif;color:#505050" id="Moisture_min">ค่าน้อยสุด : </h5>
+                            <h5 style="text-align:center;font-family: 'Sarabun', sans-serif;color:#505050" id="Moisture_max">ค่ามากสุด : </h5>
+                        </div>
+
+                        <div class="box4x2">
+                            <h4 style="text-align:center;font-family: 'Sarabun', sans-serif;font-size: 1.5em;color:#505050">PH</h4>
+                            <h5 style="text-align:center;font-family: 'Sarabun', sans-serif;color:#505050">(Ph)</h5>
+                            <h5 style="text-align:center;font-family: 'Sarabun', sans-serif;color:#505050" id="Ph_cur">ปัจจุบัน : </h5>
+                            <h5 style="text-align:center;font-family: 'Sarabun', sans-serif;color:#505050" id="Ph_mean">ค่าเฉลี่ย : </h5>
+                            <h5 style="text-align:center;font-family: 'Sarabun', sans-serif;color:#505050" id="Ph_min">ค่าน้อยสุด : </h5>
+                            <h5 style="text-align:center;font-family: 'Sarabun', sans-serif;color:#505050" id="Ph_max">ค่ามากสุด : </h5>
+                        </div>
+                    </div>
+                </div>
+
+                
+        <script src="raphael-2.1.4.min.js"></script>
+        <script src="justgage.js"></script>
+        <script>
+            function notavailable() {
+                alert("This function is not available yet.");}
+        </script>
+            
+        <script>
+        var g1, g2, g3;
+        document.addEventListener("DOMContentLoaded", function(event) {
+        
+        g1 = new JustGage({
+            id: 'g1',
+            value: 30,
+            title: "อุณหภูมิ",
+            titleFontColor : "#505050",
+            label: "องศาเซลเซียส",
+            titleMinFontSize: 40,
+            titleFontFamily: "TH Sarabun New",
+            min: 0,
+            max: 60,
+            pointer: true,
+            pointerOptions: {
+                toplength: -15,
+                bottomlength: 10,
+                bottomwidth: 12,
+                color: '#8e8e93',
+                stroke: '#ffffff',
+                stroke_width: 3,
+                stroke_linecap: 'round'
+            },
+            gaugeWidthScale: 0.6,
+            counter: true
+            });
+
+        g2 = new JustGage({
+            id: 'g2',
+            value: 50,
+            title: "ความชื้น",
+            titleFontColor : "#505050",
+            label: "เปอร์เซ็นต์",
+            titleMinFontSize: 40,
+            titleFontFamily: "TH Sarabun New",
+            min: 0,
+            max: 100,
+            pointer: true,
+            pointerOptions: {
+                toplength: -15,
+                bottomlength: 10,
+                bottomwidth: 12,
+                color: '#8e8e93',
+                stroke: '#ffffff',
+                stroke_width: 3,
+                stroke_linecap: 'round'
+            },
+            gaugeWidthScale: 0.6,
+            counter: true
+            });
+
+        g3 = new JustGage({
+            id: 'g3',
+            value: 5,
+            title: "PH",
+            titleFontColor : "#505050",
+            label: "Ph",
+            titleMinFontSize: 40,
+            titleFontFamily: "TH Sarabun New",
+            min: 0,
+            max: 14,
+            pointer: true,
+            pointerOptions: {
+                toplength: -15,
+                bottomlength: 10,
+                bottomwidth: 12,
+                color: '#8e8e93',
+                stroke: '#ffffff',
+                stroke_width: 3,
+                stroke_linecap: 'round'
+            },
+            gaugeWidthScale: 0.6,
+            counter: true
+            });
+    //         function notavailable() {
+    //             alert("This function is not available yet.");
+    //         }
+
+        
+        
+      
+    });
+
+        </script>   
+    </body>
+</html>
