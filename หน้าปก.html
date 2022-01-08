@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body {font-family: Arial, Helvetica, sans-serif;}
+      form {border: 0px solid #000000;}
+
+    input[type=text], input[type=password] {
+      width: 100%;
+      padding: 12px 20px;
+      margin: 8px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #04AA6D;
+      color: white;
+      padding: 14px 20px;
+      margin: 8px 0;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      opacity: 0.8;
+    }
+
+    .cancelbtn {
+      width: auto;
+      padding: 10px 18px;
+      background-color: #f44336;
+    }
+
+    .imgcontainer {
+      width:350px;
+      margin: 24px 0 12px 0;
+      padding-left: 550px;
+      padding-right: 350px;
+      
+    }
+
+    img.avatar {
+      width: 40%;
+      border-radius: 50%;
+    }
+
+    .container {
+      padding-left: 350px;
+      padding-right: 350px;
+      margin-top: 10px;
+      margin-bottom: 0;
+
+    }
+
+    span.psw {
+      float: right;
+
+      padding-top: 16px;
+    }
+    html { 
+       background: url(https://img95.lovepik.com/photo/40111/4542.gif_wh300.gif) no-repeat center fixed; 
+       background-size: cover;
+    }
+
+    /* Change styles for span and cancel button on extra small screens */
+    @media screen and (max-width: 300px) {
+    span.psw {
+      display: block;
+      float: none;
+    }
+    .cancelbtn {
+      width: 100%;
+    }
+  }
+    </style>
+  </head>
+  <body>
+
+    <h1 align = 'center'>Login Quality of soil for Agriculture</h1>
+
+    <form action="https://soil-web-3b9a1.web.app/" method="post">
+      <div class="imgcontainer">
+        <img src="https://www.kellogggarden.com/wp-content/uploads/2020/03/testing-soil-.jpg" alt="Avatar"  class="avatar">
+      </div>
+
+      <div class="container">
+        <label for="name"><b>Username</b></label>
+        <input type="text" placeholder="Enter Username" name="name" id="user" required>
+
+        <label for="psw"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="pw" id="pass" required>
+            
+        <button  type="submit" id="submit" onclick="submit1()">Login</button>
+      </div>
+
+      <div class="container" >
+        <button type="button" class="cancelbtn">Cancel</button>
+        <span class="psw">Forgot <a href="#">password?</a></span>
+      </div>
+
+      <script>
+        // Initialize Firebase
+        var firebaseRef = {};
+        // เพื่อสร้างตัวแปร Global ไว้ส่งค่าไปใช้ในส่วนอื่น ๆ
+        var backup_datas = {};
+
+        angular.module('firebaseApp', []).service('firebaseService', function() {
+            // สร้าง Function เพื่อ init Firebase เข้ากับ app เรา
+            this.initFirebase = function() {
+                var config = {
+                    apiKey: "AIzaSyDj2zLC10b5Bn5yYTBXQ6BgzqH-Uhl3gZA",
+                  authDomain: "login1-bd27d.firebaseapp.com ",
+                  databaseURL: "https://login1-bd27d-default-rtdb.asia-southeast1.firebasedatabase.app/"
+                };
+                firebase.initializeApp(config);
+                firebaseRef = firebase.database().ref("idpass");    
+            }
+            // สร้าง Function เพื่อเก็บ event ของ Firebase
+            this.eventFirebase = function() {
+                firebaseRef.on('value', function(data) {
+                  const datas = Object.values(data.val());
+
+                  // ใส่ค่าเข้าตัวแปร Global
+                  backup_datas = datas;
+
+                console.log(datas);
+                
+                    document.getElementById('temp').innerHTML = id-pass + datas[0]["id"];
+                })
+            }
+            this.push = function(title, content) {}
+        }).controller('firebaseCtrl', function(firebaseService) {
+            // เรียกใช้งาน firebaseService ที่เราสร้างไว้
+            firebaseService.initFirebase();
+            firebaseService.eventFirebase();
+        })
+      </script>
+    <script>
+      function submit1(){
+        var username = document.getElementById("user").value;
+        var password = document.getElementById("pass").value;
+
+        if(username=="admin"&&password=="admin"){
+          alert("Login success")
+          location.replace("#")
+        }
+        else{
+          alert("Login failed")
+        }
+      }
+    </script>
+
+    </form>
+
+  </body>
+</html>
